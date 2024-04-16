@@ -1,0 +1,101 @@
+{
+  "auth": {
+    "amplifydev": {
+      "customAuth": false,
+      "dependsOn": [],
+      "providerPlugin": "awscloudformation",
+      "service": "Cognito",
+      "serviceType": "imported"
+    }
+  },
+  "parameters": {
+    "AMPLIFY_auth_amplifydev_allowUnauthenticatedIdentities": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "amplifydev"
+        }
+      ]
+    },
+    "AMPLIFY_auth_amplifydev_authRoleArn": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "amplifydev"
+        }
+      ]
+    },
+    "AMPLIFY_auth_amplifydev_authRoleName": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "amplifydev"
+        }
+      ]
+    },
+    "AMPLIFY_auth_amplifydev_identityPoolId": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "amplifydev"
+        }
+      ]
+    },
+    "AMPLIFY_auth_amplifydev_identityPoolName": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "amplifydev"
+        }
+      ]
+    },
+    "AMPLIFY_auth_amplifydev_nativeClientId": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "amplifydev"
+        }
+      ]
+    },
+    "AMPLIFY_auth_amplifydev_unauthRoleArn": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "amplifydev"
+        }
+      ]
+    },
+    "AMPLIFY_auth_amplifydev_unauthRoleName": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "amplifydev"
+        }
+      ]
+    },
+    "AMPLIFY_auth_amplifydev_userPoolId": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "amplifydev"
+        }
+      ]
+    },
+    "AMPLIFY_auth_amplifydev_userPoolName": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "amplifydev"
+        }
+      ]
+    },
+    "AMPLIFY_auth_amplifydev_webClientId": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "amplifydev"
+        }
+      ]
+    }
+  }
+}
