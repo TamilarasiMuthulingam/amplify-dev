@@ -26,6 +26,9 @@
           "userPoolName": "amplifyappda261aed_userpool_da261aed-staging",
           "webClientId": "69tok7vvurhna4n01vf8r43ofq"
         }
+      },
+      "api": {
+        "amplifydev": {}
       }
     }
   }
