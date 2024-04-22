@@ -26,16 +26,6 @@ const PublishAndSubscribe = () => {
  
   
  
-    getCredentials() {
-      return {
-        aws_access_id: this.cachedCredentials?.accessKeyId ?? "AKIAQN5WGFSX4R2ORQWS",
-        aws_secret_key: this.cachedCredentials?.secretAccessKey ?? "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",
-        aws_sts_token: this.cachedCredentials?.sessionToken,
-        aws_region: this.options.Region,
-      };
-    }
-  }
- 
   useEffect(() => {
     const initMqttClient = async () => {
       try {
