@@ -61,3 +61,10 @@
 .table-tr:nth-child(even){
   background-color:White;
 }
+.toggle-arrow{
+float: right;
+    position: relative;
+    top: 350px;
+    left: 20px;
+    z-index: 6000;
+}
