@@ -26,6 +26,16 @@ const PublishAndSubscribe = () => {
  
   
  
+  
+getCredentials() {
+  return {
+    aws_access_id: process.env.ACCESS_KEY_ID,
+    aws_secret_key: process.env.SECRET_ACCESS_KEY,
+  
+    aws_region: process.env.Region,
+  };
+}
+  } 
   useEffect(() => {
     const initMqttClient = async () => {
       try {
