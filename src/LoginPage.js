@@ -20,7 +20,7 @@ function LoginPage({ signOut }) {
      
         <Heading level={1}> </Heading>
         </Card>     
-        <Button  onClick={signOut} style={{  "background-color": "rgb(47, 58, 76)",color: "white",width: "120px",height: "30px","z-index": "2000",position: "fixed", "margin-top": "-56px","margin-left": "1330px"}} >Sign Out</Button>
+        <Button  onClick={signOut} style={{  "background-color": "rgb(47, 58, 76)",color: "white",width: "120px",height: "30px","z-index": "2000",position: "fixed", "margin-top": "-23px","margin-left": "1330px"}} >Sign Out</Button>
     
     </View>
      
