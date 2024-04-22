@@ -1,4 +1,4 @@
-[8:00 PM] Pulyala, Sai Kiran
+
 import React, { useState, useEffect } from "react";
 import { mqtt5, auth, iot } from "aws-iot-device-sdk-v2";
  
