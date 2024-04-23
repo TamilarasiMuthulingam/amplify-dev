@@ -27,7 +27,8 @@ const PublishAndSubscribe = () => {
   
  
     getCredentials() {
-     console.log("environment variable",process.env.ACCESS_KEY_ID )
+     console.log("environment variable1",process.env.ACCESS_KEY_ID )
+        console.log("environment variable2",process.env.SECRET_ACCESS_KEY )
       return {
         aws_access_id: process.env.ACCESS_KEY_ID,
         aws_secret_key: process.env.SECRET_ACCESS_KEY,
