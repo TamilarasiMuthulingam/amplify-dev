@@ -30,7 +30,8 @@ const PublishAndSubscribe = () => {
       return {
         aws_access_id: process.env.ACCESS_KEY_ID,
         aws_secret_key: process.env.SECRET_ACCESS_KEY,
-        aws_region: process.env.Region,
+        aws_sts_token: this.cachedCredentials?.sessionToken,
+        aws_region: this.options.Region,
       };
     }
   }
@@ -38,25 +39,26 @@ const PublishAndSubscribe = () => {
   useEffect(() => {
     const initMqttClient = async () => {
       try {
-        const endpointPrefix = "a3317ptiejt6p9-ats";
-        const region = "ap-south-1";
-const endpoint = `wss://${endpointPrefix}.iot.${region}.amazonaws.com/mqtt`;
-        
-        const provider = new AWSCognitoCredentialsProvider();
+        const provider = new AWSCognitoCredentialsProvider({
+          IdentityPoolId: "ap-south-1:d1d9188d-8a65-4d13-bd76-fd51362d9945",
+          Region: "ap-south-1",
+        });
         await provider.refreshCredentials();
-        
-        const client = createClient(provider, endpoint);
+ 
+        const client = createClient(provider);
         setMqttClient(client);
-        
+ 
         client.start();
-        
+ 
         client.on("messageReceived", (eventData) => {
           const newMessage = eventData.message;
-          console.log("subscription", newMessage);
+          console.log("subscription",newMessage)
           setDiscoverMessages((prevMessages) => [...prevMessages, newMessage]);
         });
  
-        client.subscribe({ subscriptions: [{ topicFilter: topicToSubscribe }] });
+        client.subscribe({
+          subscriptions: [{ topicFilter: topicToSubscribe }],
+        });
       } catch (error) {
         console.error("Error initializing MQTT client:", error);
       }
@@ -67,15 +69,24 @@ const endpoint = `wss://${endpointPrefix}.iot.${region}.amazonaws.com/mqtt`;
     return () => {
       if (mqttClient) {
         mqttClient.stop();
-        console.log("MQTT client stopped");
+          console.log('MQTT client stopped');
       }
     };
   }, []);
  
-  const createClient = (provider, endpoint) => {
-    let wsConfig = { credentialsProvider: provider, region: "ap-south-1" };
-    let builder = iot.AwsIotMqtt5ClientConfigBuilder.newWebsocketMqttBuilderWithSigv4Auth(endpoint, wsConfig);
-let client = new mqtt5.Mqtt5Client(builder.build());
+
+ 
+  const createClient = (provider) => {
+    let wsConfig = {
+      credentialsProvider: provider,
+      region: "ap-south-1",
+    };
+    let builder = iot.AwsIotMqtt5ClientConfigBuilder.newWebsocketMqttBuilderWithSigv4Auth(
+      "a3317ptiejt6p9-ats.iot.ap-south-1.amazonaws.com",
+      wsConfig
+    );
+    let client = new mqtt5.Mqtt5Client(builder.build());
+
     return client;
   };
  
@@ -91,14 +102,15 @@ let client = new mqtt5.Mqtt5Client(builder.build());
       const payload = JSON.stringify(message);
       const topicName = "discoveryRequest";
  
-      try {
-        const publishResult = await mqttClient.publish({ qos, topicName, payload });
-        console.log("Publish Result:", publishResult);
-      } catch (error) {
-        console.error("Error publishing message:", error);
-      }
+      const publishResult = await mqttClient.publish({
+        qos,
+        topicName,
+        payload,
+      });
+      console.log("Publish Result:", publishResult);
     }
   };
+ 
   return (
     <div className="publish-subscribe">
       <div className="publish">
