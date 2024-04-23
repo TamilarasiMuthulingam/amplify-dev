@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 
 import { mqtt5, auth, iot } from "aws-iot-device-sdk-v2";
 
- 
+
 const PublishAndSubscribe = () => {
   const [serialNumber, setSerialNumber] = useState("");
   const [name, setName] = useState("");
@@ -27,11 +27,9 @@ const PublishAndSubscribe = () => {
   
  
     getCredentials() {
-     console.log("environment variable1",process.env.ACCESS_KEY_ID )
-        console.log("environment variable2",process.env.SECRET_ACCESS_KEY )
       return {
-        aws_access_id: process.env.ACCESS_KEY_ID,
-        aws_secret_key: process.env.SECRET_ACCESS_KEY,
+        aws_access_id: process.env. REACT_APP_ACCESS_KEY_ID,
+        aws_secret_key: process.env. REACT_APP_SECRET_ACCESS_KEY,
         aws_sts_token: this.cachedCredentials?.sessionToken,
         aws_region: this.options.Region,
       };
