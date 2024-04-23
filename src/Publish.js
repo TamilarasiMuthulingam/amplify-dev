@@ -1,6 +1,8 @@
 
 import React, { useState, useEffect } from "react";
+
 import { mqtt5, auth, iot } from "aws-iot-device-sdk-v2";
+
  
 const PublishAndSubscribe = () => {
   const [serialNumber, setSerialNumber] = useState("");
@@ -13,7 +15,7 @@ const PublishAndSubscribe = () => {
   const [discoverMessages, setDiscoverMessages] = useState([]);
   const topicToPublish = "discoveryRequest";
   const topicToSubscribe = "discoverState";
-  const [mqttClient, setMqttClient] = useState("");
+  const[mqttClient,setMqttClient]=useState("");
  
   class AWSCognitoCredentialsProvider extends auth.CredentialsProvider {
     constructor(options) {
@@ -22,11 +24,14 @@ const PublishAndSubscribe = () => {
       this.cachedCredentials = null;
     }
  
+  
+ 
     getCredentials() {
       return {
-        aws_access_id: process.env.ACCESS_KEY_ID,
-        aws_secret_key: process.env.SECRET_ACCESS_KEY,
-        aws_region: process.env.Region,
+        aws_access_id: this.cachedCredentials?.accessKeyId ?? "AKIAQN5WGFSX4R2ORQWS",
+        aws_secret_key: this.cachedCredentials?.secretAccessKey ?? "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",
+        aws_sts_token: this.cachedCredentials?.sessionToken,
+        aws_region: this.options.Region,
       };
     }
   }
@@ -34,23 +39,20 @@ const PublishAndSubscribe = () => {
   useEffect(() => {
     const initMqttClient = async () => {
       try {
-        const endpointPrefix = "a3317ptiejt6p9-ats";
-        const region = "ap-south-1";
-        const endpoint = `wss://${endpointPrefix}.iot.${region}.amazonaws.com`;
- 
         const provider = new AWSCognitoCredentialsProvider({
           IdentityPoolId: "ap-south-1:d1d9188d-8a65-4d13-bd76-fd51362d9945",
           Region: "ap-south-1",
         });
- 
         await provider.refreshCredentials();
-        const client = createClient(provider, endpoint);
+ 
+        const client = createClient(provider);
         setMqttClient(client);
+ 
         client.start();
  
         client.on("messageReceived", (eventData) => {
           const newMessage = eventData.message;
-          console.log("subscription", newMessage);
+          console.log("subscription",newMessage)
           setDiscoverMessages((prevMessages) => [...prevMessages, newMessage]);
         });
  
@@ -61,28 +63,30 @@ const PublishAndSubscribe = () => {
         console.error("Error initializing MQTT client:", error);
       }
     };
+ 
     initMqttClient();
  
     return () => {
       if (mqttClient) {
         mqttClient.stop();
-        console.log("MQTT client stopped");
+          console.log('MQTT client stopped');
       }
     };
   }, []);
  
-  const createClient = (provider, endpoint) => {
+
+ 
+  const createClient = (provider) => {
     let wsConfig = {
       credentialsProvider: provider,
       region: "ap-south-1",
     };
- 
     let builder = iot.AwsIotMqtt5ClientConfigBuilder.newWebsocketMqttBuilderWithSigv4Auth(
-      endpoint,
+      "a3317ptiejt6p9-ats.iot.ap-south-1.amazonaws.com",
       wsConfig
     );
- 
     let client = new mqtt5.Mqtt5Client(builder.build());
+
     return client;
   };
  
@@ -94,7 +98,6 @@ const PublishAndSubscribe = () => {
         organization,
         address: { city, state, country, postalCode },
       };
- 
       const qos = mqtt5.QoS.AtLeastOnce;
       const payload = JSON.stringify(message);
       const topicName = "discoveryRequest";
@@ -104,7 +107,6 @@ const PublishAndSubscribe = () => {
         topicName,
         payload,
       });
- 
       console.log("Publish Result:", publishResult);
     }
   };
@@ -174,21 +176,26 @@ const PublishAndSubscribe = () => {
           </div>
           <br />
         </div>
-        <button style={{ position: "relative", left: "85px" }} onClick={publishToDiscoveryRequest}>
-          Discovery
+        <button
+          style={{ position: "relative", left: "85px" }}
+          onClick={publishToDiscoveryRequest}
+        >
+           Discovery 
         </button>
       </div>
+
       <div className="subscribe">
+        
         <ul>
           {discoverMessages.map((message, index) => (
             <li key={index}>
-              <strong>Topic:</strong> {message.topic}, <strong>Payload:</strong> {message.payload}
-            </li>
+            <strong>Topic:</strong> {message.topic}, <strong>Payload:</strong> {message.payload}
+          </li>
           ))}
         </ul>
       </div>
     </div>
   );
 };
- 
+
 export default PublishAndSubscribe;
