@@ -27,13 +27,12 @@ const PublishAndSubscribe = () => {
   
  
     getCredentials() {
-      console.log("acess key",process.env.REACT_APP_ACCESS_KEY_ID);
-      console.log("secrte key",process.env.REACT_APP_SECRET_ACCESS_KEY);
+      console.log("acess",process.env.REACT_APP_ACCESS_KEY_ID);
+      console.log("secrete",process.env.REACT_APP_SECRET_ACCESS_KEY);
       return {
         aws_access_id: process.env.REACT_APP_ACCESS_KEY_ID,
         aws_secret_key: process.env.REACT_APP_SECRET_ACCESS_KEY,
-        aws_sts_token: this.cachedCredentials?.sessionToken,
-        aws_region: this.options.Region,
+          aws_region: this.options.Region,
       };
     }
   }
