@@ -27,7 +27,7 @@ const PublishAndSubscribe = () => {
   
  
     getCredentials() {
-      console.log("acess",process.env.REACT_APP_ACCESS_KEY_ID);
+      console.log("acess..",process.env.REACT_APP_ACCESS_KEY_ID);
       console.log("secrete",process.env.REACT_APP_SECRET_ACCESS_KEY);
       return {
         aws_access_id: process.env.REACT_APP_ACCESS_KEY_ID,
