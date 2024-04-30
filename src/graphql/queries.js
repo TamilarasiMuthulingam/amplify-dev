@@ -8,9 +8,7 @@
     SerialNumber
   }
 }
-
-
-  `
+`
 
 export const getAllRecords2=`
   query MyQuery {
@@ -19,20 +17,38 @@ export const getAllRecords2=`
     Points
    }
  }
- 
- 
-   `
-   export const getAllRecords3=`
-   query MyQuery {
-    getAllRecords3 {
+`
+export const getAllRecords3=`
+query MyQuery {
+  getAllRecords3 {
+    Dimension
+    PointMap
+    Timestamp
+    Unit
+    Value
+  }
+}
+`
+export const getAllEquipmentsBySerialNumber=`
+query MyQuery {
+  getAllEquipmentsBySerialNumber {
+    items {
       PointMap
       Timestamp
+      Unit
       Value
     }
   }
-  
-  
-  
-
-  `
+}
+`
+//(filter: {ObjectMap: {beginsWith: "E08E60850#area" }})
+export const getAllEquipmentNamesBySerialNumber=`
+query MyQuery {
+  getAllEquipmentNamesBySerialNumber {
+    items {
+      ObjectMap
+    }
+  }
+}
+`
  
