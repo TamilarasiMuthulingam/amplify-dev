@@ -1,29 +1,32 @@
-    
 
+import React, { useEffect } from "react";
 import "@aws-amplify/ui-react/styles.css";
 import {
   withAuthenticator,
-  Button,
   Heading,
-  Image,
   View,
-  Card,  
+  Card
 } from "@aws-amplify/ui-react";
-import Building from "./components/Buildings/Building";
+import { useHistory } from 'react-router-dom';
 
-function LoginPage({ signOut }) {  
+function LoginPage({ signOut, user }) {
+  const history = useHistory();
+
+  useEffect(() => {
+    if(user !== undefined && user !== null){
+      localStorage.setItem("LoggedInUserName", user?.signInDetails?.loginId)
+      history.push({
+        pathname:"/Home"
+      });
+    }
+  }, []);
+
   return (
     <View className="App">
       <Card>
-        <Building/>
-        
-     
         <Heading level={1}> </Heading>
-        </Card>     
-        <Button  onClick={signOut} style={{  "background-color": "rgb(47, 58, 76)",color: "white",width: "120px",height: "30px","z-index": "2000",position: "fixed", "margin-top": "-23px","margin-left": "1330px"}} >Sign Out</Button>
-    
+      </Card>
     </View>
-     
   );
 }
 

@@ -1,10 +1,12 @@
 
+
 import React, { useState, useEffect } from "react";
 
 import { mqtt5, auth, iot } from "aws-iot-device-sdk-v2";
+import KeyboardDoubleArrowRightIcon from "@mui/icons-material/KeyboardDoubleArrowRight";
 
 
-const PublishAndSubscribe = () => {
+const PublishAndSubscribe = ({ toggleRightPanel}) => {
   const [serialNumber, setSerialNumber] = useState("");
   const [name, setName] = useState("");
   const [organization, setOrganization] = useState("");
@@ -111,14 +113,14 @@ const PublishAndSubscribe = () => {
       console.log("Publish Result:", publishResult);
     }
   };
- 
   return (
-    <div className="publish-subscribe">
+    <div className="publish-pnl">
+      <button onClick={() => toggleRightPanel()} style={{"height":"30px", "margin-top":"375px", "cursor":"pointer"}}><KeyboardDoubleArrowRightIcon /></button>  
       <div className="publish">
-        <h2 style={{ color: "white", position: "relative", bottom: "20px" }}>
-          Publish to {topicToPublish}:
+        <h2 className="building-header">
+          Discover Building
         </h2>
-        <div className="container3">
+        <div className="building-discover-conatiner">
           <div>
             <label>Serial Number:</label>
             <input
