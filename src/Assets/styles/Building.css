@@ -1,0 +1,72 @@
+.headerBuilding {
+    margin-bottom: 20px;
+}
+
+.building-name {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.building-location {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.parentdiv {
+    margin: 1rem;
+    padding: 7rem 2rem;
+    text-align: center;
+}
+
+.childdiv {
+    display: inline-block;
+    padding: 2rem 4rem;
+    vertical-align: middle;
+    margin-right: 20px;
+    background-color: #2F3A4C;
+    color: white;
+    cursor: pointer;
+    width: 350px;
+}
+
+.buildingslide {
+    border-radius: 32px;
+    box-shadow:
+      1px 1px 0 1px #f9f9fb,
+      -1px 0 28px 0 rgba(34, 33, 81, 0.01),
+      28px 28px 28px 0 rgba(34, 33, 81, 0.25);
+}
+
+.buildingslide:hover {
+    box-shadow:
+      1px 1px 0 1px #f9f9fb,
+      -1px 0 28px 0 rgba(34, 33, 81, 0.01),
+      54px 54px 28px -10px rgba(34, 33, 81, 0.15);
+}
+
+.publish-pnl {
+    background-color: #2f3a4c;
+    display: flex;
+    height: 100%;
+    position: fixed;
+    right: 0;
+    top: 50px;
+    transition: right .3s ease;
+    width: 380px;
+    z-index: 1000;
+}
+
+.building-header {
+    color: white;
+    position: relative;
+    top: 3px;
+    left: 16px;
+}
+
+.building-discover-conatiner {
+    align-items: flex-start;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}

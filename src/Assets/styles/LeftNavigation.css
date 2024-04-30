@@ -1,0 +1,164 @@
+.navleft-panel {
+    position: fixed;
+    top: 50px;
+    left: 0;
+    width: 20%;
+    height: 100%;
+    background-color:#2F3A4C;
+    z-index: 1000;
+    overflow-y: auto;
+}
+
+.navhighlight:hover {
+    background-color: #26303C;
+    cursor: "pointer"
+}
+
+.navsitename {
+    color:white;
+    padding:8px;
+    margin-left:20px;
+    cursor: pointer;
+}
+
+.img-building {
+    position: relative;
+    width: 16px;
+    right:8px;
+}
+
+.navcontainer {
+    color:white;
+    padding:4px 0px;
+    cursor: pointer; 
+}
+
+.familycontainer {
+    cursor: pointer;
+    padding: 8px 8px 8px 40px;
+}
+
+.objectcontainer{
+    padding: 8px 8px 8px 60px;
+    cursor: pointer;
+}
+
+.navobjname{
+    font-size: 13px;
+}
+
+.topcontainer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 50px;
+    z-index: 2000;
+    flex-direction: column;
+    background-color:#26303C;
+}
+
+.image-container {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 25px;
+}
+
+.txt-trane {
+    margin: 0;
+    font-size: 13px;
+    color: #ffffff;
+    font-family: Verdana;
+    margin-left: 185px;
+    margin-top: -29px;
+}
+
+.user-icon {
+    margin-right: 12px;
+    margin-top: -27px;
+    color: white;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: bold;
+    float: right;
+}
+
+.signout-div {
+    float: right;
+    margin-top: -26px;
+    margin-right: 12px;
+}
+
+.signout-btn {
+    background-color: rgb(47, 58, 76);
+    color: white;
+    width: 120px;
+    height: 30px;
+}
+
+.content-pane {
+    padding-left: 310px;
+    padding-top: 65px;
+}
+
+.tblequipment {
+    width: 100%;
+    padding-right: 14px;
+    padding-bottom: 10px;
+}
+
+.tblequipment thead {
+    background-Color: #26303C;
+}
+
+.tblequipment thead th {
+    color: white;
+    font-size: 16px;
+    font-family: Lato;
+    text-align: left;
+    padding: 20px;
+    padding-right: 40px;
+    width: 200px;
+    border-top: 1px solid white;
+}
+
+.tblequipment .cell_container tr td {
+    padding-left: 20px;
+}
+
+.tblequipment .cell_container tr:nth-of-type(2n) {
+    background-Color: #bdc4d1;
+    height: 40px;
+}
+
+.tblequipment .cell_container tr:nth-of-type(odd) {
+    background-Color: #ffff;
+    height: 40px;
+}
+
+.header_margin {
+    margin-bottom: 0px;
+}
+
+.tbl_equipsummary {
+    width: 50%;
+    margin-left: 310px;
+}
+
+.home-icon {
+    float: left;
+    margin-left: 365px;
+    margin-top: -27px;
+    color: white;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.home-arror-icon {
+    float: right;
+    margin-right: -48px;
+    margin-top: 65px;
+    cursor: pointer;
+}
