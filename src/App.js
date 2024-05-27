@@ -6,6 +6,7 @@ import Home from "./components/Buildings/Home";
 import AllFamilyEquipments from "./components/Buildings/AllFamilyEquipments";
 import EquipmentList from "./components/Buildings/EquipmentList";
 import EquipmentSummary from "./components/Buildings/EquipmentSummary";
+import LineChart from "./Chart";
 import { Authenticator } from '@aws-amplify/ui-react';
 
 function App() {
@@ -17,6 +18,8 @@ function App() {
       <Route exact path="/AllFamilyEquipments" component={AllFamilyEquipments} />
       <Route exact path="/EquipmentList" component={EquipmentList} />
       <Route exact path="/EquipmentSummary" component={EquipmentSummary} />
+      <Route exact path="/ChartData" component={LineChart} />
+
     </>
   )
 
@@ -24,7 +27,7 @@ function App() {
     <Authenticator.Provider>
       <Router>
         <Switch>
-          <Route exact path="/" component={Loginpage} />
+        <Route exact path="/" component={Loginpage} />
           <Route exact path="/LoginPage" component={Loginpage} />
           <Route component={DefaultContainer}/>
         </Switch>
