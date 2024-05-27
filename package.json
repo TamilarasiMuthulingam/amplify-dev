@@ -10,11 +10,9 @@
     "@aws-sdk/util-utf8-browser": "^3.259.0",
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.0",
-@@ -16,11 +13,9 @@
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "aws-amplify": "^6.0.19",
-
     "aws-iot-device-sdk-v2": "^1.19.1",
     "aws-mqtt": "^1.0.0",
     "aws-sdk": "^2.1576.0",
