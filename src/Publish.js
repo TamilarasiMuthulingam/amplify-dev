@@ -1,121 +1,116 @@
-
-
 import React, { useState, useEffect } from "react";
-
 import { mqtt5, auth, iot } from "aws-iot-device-sdk-v2";
 import KeyboardDoubleArrowRightIcon from "@mui/icons-material/KeyboardDoubleArrowRight";
-
-
-const PublishAndSubscribe = ({ toggleRightPanel}) => {
-  const [serialNumber, setSerialNumber] = useState("");
-  const [name, setName] = useState("");
-  const [organization, setOrganization] = useState("");
-  const [city, setCity] = useState("");
-  const [state, setState] = useState("");
-  const [country, setCountry] = useState("");
-  const [postalCode, setPostalCode] = useState("");
-  const [discoverMessages, setDiscoverMessages] = useState([]);
-  const topicToPublish = "discoveryRequest";
-  const topicToSubscribe = "discoverState";
-  const[mqttClient,setMqttClient]=useState("");
  
-  class AWSCognitoCredentialsProvider extends auth.CredentialsProvider {
-    constructor(options) {
-      super();
-      this.options = options;
-      this.cachedCredentials = null;
+const PublishAndSubscribe = ({ toggleRightPanel }) => {
+    const [serialNumber, setSerialNumber] = useState("");
+    const [name, setName] = useState("");
+    const [organization, setOrganization] = useState("");
+    const [city, setCity] = useState("");
+    const [state, setState] = useState("");
+    const [country, setCountry] = useState("");
+    const [postalCode, setPostalCode] = useState("");
+    const [discoverMessages, setDiscoverMessages] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [statusMessage, setStatusMessage] = useState("");
+    const topicToPublish = "discoveryRequest";
+    const topicToSubscribe = "discoverState";
+    const [mqttClient, setMqttClient] = useState("");
+ 
+    class AWSCognitoCredentialsProvider extends auth.CredentialsProvider {
+        constructor(options) {
+            super();
+            this.options = options;
+            this.cachedCredentials = null;
+        }
+ 
+        getCredentials() {
+            return {
+                aws_access_id: process.env.REACT_APP_ACCESS_KEY_ID,
+                aws_secret_key: process.env.REACT_APP_SECRET_ACCESS_KEY,
+                aws_region: this.options.Region,
+            };
+        }
     }
  
-  
+    useEffect(() => {
+        const initMqttClient = async () => {
+            try {
+                const provider = new AWSCognitoCredentialsProvider({
+                    IdentityPoolId: "ap-south-1:d1d9188d-8a65-4d13-bd76-fd51362d9945",
+                    Region: "ap-south-1",
+                });
+                await provider.refreshCredentials();
+                const client = createClient(provider);
+                setMqttClient(client);
+                client.start();
+                client.on("messageReceived", (eventData) => {
+                    const newMessage = eventData.message;
+                    setDiscoverMessages((prevMessages) => [...prevMessages, newMessage]);
+                });
+                client.subscribe({ subscriptions: [{ topicFilter: topicToSubscribe }] });
+            } catch (error) {
+                console.error("Error initializing MQTT client:", error);
+            }
+        };
  
-    getCredentials() {
-      console.log("acess",process.env.REACT_APP_ACCESS_KEY_ID);
-      console.log("secrete",process.env.REACT_APP_SECRET_ACCESS_KEY);
-      return {
-        aws_access_id: process.env.REACT_APP_ACCESS_KEY_ID,
-        aws_secret_key: process.env.REACT_APP_SECRET_ACCESS_KEY,
-          aws_region: this.options.Region,
-      };
-    }
-  }
+        initMqttClient();
+        return () => {
+            if (mqttClient) {
+                mqttClient.stop();
+                console.log('MQTT client stopped');
+            }
+        };
+    }, []);
  
-  useEffect(() => {
-    const initMqttClient = async () => {
-      try {
-        const provider = new AWSCognitoCredentialsProvider({
-          IdentityPoolId: "ap-south-1:d1d9188d-8a65-4d13-bd76-fd51362d9945",
-          Region: "ap-south-1",
-        });
-        await provider.refreshCredentials();
- 
-        const client = createClient(provider);
-        setMqttClient(client);
- 
-        client.start();
- 
-        client.on("messageReceived", (eventData) => {
-          const newMessage = eventData.message;
-          console.log("subscription",newMessage)
-          setDiscoverMessages((prevMessages) => [...prevMessages, newMessage]);
-        });
- 
-        client.subscribe({
-          subscriptions: [{ topicFilter: topicToSubscribe }],
-        });
-      } catch (error) {
-        console.error("Error initializing MQTT client:", error);
-      }
+    const createClient = (provider) => {
+        let wsConfig = { credentialsProvider: provider, region: "ap-south-1" };
+        let builder = iot.AwsIotMqtt5ClientConfigBuilder.newWebsocketMqttBuilderWithSigv4Auth(
+"a3317ptiejt6p9-ats.iot.ap-south-1.amazonaws.com", wsConfig
+        );
+let client = new mqtt5.Mqtt5Client(builder.build());
+        return client;
     };
  
-    initMqttClient();
+    const publishToDiscoveryRequest = async () => {
+        if (mqttClient) {
+            setLoading(true);
+            setStatusMessage("Loading...");
  
-    return () => {
-      if (mqttClient) {
-        mqttClient.stop();
-          console.log('MQTT client stopped');
-      }
+            setTimeout(() => {
+                setStatusMessage("Data is pushing into the cloud...");
+            }, 1000);
+ 
+            const message = {
+                serialNumber,
+                name,
+                organization,
+                address: { city, state, country, postalCode },
+            };
+            const qos = mqtt5.QoS.AtLeastOnce;
+            const payload = JSON.stringify(message);
+            const topicName = "discoveryRequest";
+ 
+            try {
+                await mqttClient.publish({ qos, topicName, payload });
+ 
+                setTimeout(() => {
+                    setLoading(false);
+                    setStatusMessage("Data is published successfully.");
+                }, 10000); // 40 seconds
+            } catch (error) {
+                console.error("Error publishing message:", error);
+                setLoading(false);
+                setStatusMessage("Failed to publish data.");
+            }
+        }
     };
-  }, []);
  
-
- 
-  const createClient = (provider) => {
-    let wsConfig = {
-      credentialsProvider: provider,
-      region: "ap-south-1",
-    };
-    let builder = iot.AwsIotMqtt5ClientConfigBuilder.newWebsocketMqttBuilderWithSigv4Auth(
-      "a3317ptiejt6p9-ats.iot.ap-south-1.amazonaws.com",
-      wsConfig
-    );
-    let client = new mqtt5.Mqtt5Client(builder.build());
-
-    return client;
-  };
- 
-  const publishToDiscoveryRequest = async () => {
-    if (mqttClient) {
-      const message = {
-        serialNumber,
-        name,
-        organization,
-        address: { city, state, country, postalCode },
-      };
-      const qos = mqtt5.QoS.AtLeastOnce;
-      const payload = JSON.stringify(message);
-      const topicName = "discoveryRequest";
- 
-      const publishResult = await mqttClient.publish({
-        qos,
-        topicName,
-        payload,
-      });
-      console.log("Publish Result:", publishResult);
-    }
-  };
-  return (
-    <div className="publish-pnl">
-      <button onClick={() => toggleRightPanel()} style={{"height":"30px", "margin-top":"375px", "cursor":"pointer"}}><KeyboardDoubleArrowRightIcon /></button>  
+    return (
+        <div className="publish-pnl">
+            <button onClick={() => toggleRightPanel()} style={{ height: "30px", marginTop: "375px", cursor: "pointer" }}>
+                <KeyboardDoubleArrowRightIcon />
+                </button>  
       <div className="publish">
         <h2 className="building-header">
           Discover Building
@@ -183,22 +178,27 @@ const PublishAndSubscribe = ({ toggleRightPanel}) => {
           style={{ position: "relative", left: "85px" }}
           onClick={publishToDiscoveryRequest}
         >
-           Discovery 
+           Discovery
         </button>
-      </div>
-
-      <div className="subscribe">
-        
-        <ul>
-          {discoverMessages.map((message, index) => (
-            <li key={index}>
-            <strong>Topic:</strong> {message.topic}, <strong>Payload:</strong> {message.payload}
-          </li>
-          ))}
-        </ul>
-      </div>
-    </div>
-  );
+            </div>
+            <div className="subscribe">
+                <ul>
+                    {discoverMessages.map((message, index) => (
+                        <li key={index}>
+                            <strong>Topic:</strong> {message.topic}, <strong>Payload:</strong> {message.payload}
+                        </li>
+                    ))}
+                </ul>
+            </div>
+            {loading && (
+                <div className="loading-overlay">
+                    <p className="loading">{statusMessage}</p>
+                </div>
+            )}
+        </div>
+    );
 };
-
+ 
 export default PublishAndSubscribe;
+
+
