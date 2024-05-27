@@ -1,86 +1,82 @@
 import React, { useEffect, useState } from "react";
 import { generateClient } from "aws-amplify/api";
-import { getAllEquipmentNamesBySerialNumber, getAllEquipmentsBySerialNumber } from "../../graphql/queries";
+import { getAllEquipmentList,  AllEquipmentList } from "../../graphql/queries"; // Import the  query
 import EnumData from "./EnumFile";
-
+ 
 const client = generateClient();
 const headerMapping = {
-    area: ["Name", "InsideTemperature", "ActiveSetpoint", "HeatCoolMode", "PresentValue"],
-    space: ["Name", "ActiveSetPoint", "EquipmentType", "HeatCoolMode", "SpaceTemperatureActive"],
-    chiller: ["Name", "EnteringWaterTemperature", "LeavingWaterTemperature", "RunningMode"],
-    airhandler: ["Name", "DuctStaticPressure", "DuctStaticPressureSetpoint", "DischargeAirTemperature", "DischargeAirTemperatureSetpoint"],
-    vas: ["Name", "Occupancy", "OperatingMode"],
-    cpc: ["Name", "ChilledWaterSetpoint", "ReturnWaterTemperature", "SupplyWaterTemperature", "FlowStatus", "BypassFlow"]
+  area: ["Name", "InsideTemperature", "ActiveSetpoint", "HeatCoolMode", "PresentValue"],
+  space: ["Name", "ActiveSetPoint", "EquipmentType", "HeatCoolMode", "SpaceTemperatureActive"],
+  chiller: ["Name", "EnteringWaterTemperature", "LeavingWaterTemperature", "RunningMode"],
+  airhandler: ["Name", "DuctStaticPressure", "DuctStaticPressureSetpoint", "DischargeAirTemperature", "DischargeAirTemperatureSetpoint"],
+  vas: ["Name", "Occupancy", "OperatingMode"],
+  cpc: ["Name", "ChilledWaterSetpoint", "ReturnWaterTemperature", "SupplyWaterTemperature", "FlowStatus", "BypassFlow"]
 }
 
 function EquipmentList(BuildingData) {
-    console.log('sSerialNumber', BuildingData?.location?.SerialNumber + BuildingData?.location?.FamilyType);
-    let lSelectedFamilyType = BuildingData?.location?.FamilyType;
-    const [Equipments, setEquipments] = useState([]);
+  console.log('sSerialNumber', BuildingData?.location?.SerialNumber + BuildingData?.location?.FamilyType);
+  let lSelectedFamilyType = BuildingData?.location?.FamilyType;
+  const [Equipments, setEquipments] = useState([]);
+ let latestTimestamp;
+  useEffect(() => {
+    fetchEquipmentList();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [BuildingData?.location?.FamilyType]);
+ console.log("data", BuildingData?.location?.FamilyType)
+  const fetchEquipmentList = async () => {
+    try {
+      let lSerialNumber = BuildingData?.location?.SerialNumber;
+      
+      let lFamilyType = BuildingData?.location?.FamilyType;
+      
+ let serialNumber=lSerialNumber;
+  let FamilyType=lFamilyType;
+ const timestampResult = await client.graphql({ query: AllEquipmentList,variables: { serialNumber,FamilyType } });
+ latestTimestamp = timestampResult.data.getAllRecords4.AllEquipmentList.items;
+console.log("EquipmentData",latestTimestamp)
 
-    useEffect(() => {
-        fetchEquipmentList();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+      const Objresult = await client.graphql({
+        query:getAllEquipmentList,
+        variables: { serialNumber,FamilyType}
+      });
+      let ObjectsNameLst = Objresult.data.getAllEquipmentList.items;
+      console.log("objectData",ObjectsNameLst)
+   
+ 
 
-    useEffect(() => {
-        fetchEquipmentList();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [BuildingData?.location?.FamilyType]);
+      FormtblRows(ObjectsNameLst,latestTimestamp,  lFamilyType, );
+    } catch (error) {
+      console.error("Error fetching site data:", error);
+    }
+  };
 
-    const fetchEquipmentList = async () => {
-        try {
-            let lSerialNumber = BuildingData?.location?.SerialNumber;
-            let lFamilyType = BuildingData?.location?.FamilyType;
-            const Objresult = await client.graphql({
-                query: getAllEquipmentNamesBySerialNumber, variables: {
-                    ObjectMap: { beginsWith: lSerialNumber + "#" + lFamilyType }
-                }
-            });
-            let ObjectsNameLst = Objresult.data.getAllEquipmentNamesBySerialNumber.items;
-            let ObjectsName = ObjectsNameLst.filter((obj) => ParseObjectMap(obj.ObjectMap, 0) === lSerialNumber);
-            console.log('EqObjectNamesData lst', ObjectsName);
-
-            const result = await client.graphql({
-                query: getAllEquipmentsBySerialNumber, variables: {
-                    PointMap: { beginsWith: lSerialNumber }
-                }
-            });
-            var ObjectsDataLst = result.data.getAllEquipmentsBySerialNumber.items;
-            var ObjectsData = ObjectsDataLst.filter((obj) => ParseObjectMap(obj.PointMap, 0) === lSerialNumber);
-            console.log('EqObjectsData lst', ObjectsData);
-
-            FormtblRows(ObjectsName, ObjectsData, lFamilyType);
-
-        } catch (error) {
-            console.error("Error fetching site data:", error);
-        }
-    };
-
-    const FormtblRows = (ObjectsName, ObjectsData, lFamilyType) => {
-        let lFileredData = ObjectsName.filter((obj) => ParseObjectMap(obj.ObjectMap, 1) === lFamilyType);
-        let lFilteredData1 = ObjectsData.filter((obj) => ParseObjectMap(obj.PointMap, 1) === lFamilyType);
+    const FormtblRows = (ObjectsNameLst,latestTimestamp , lFamilyType) => {
+        let lFileredData = ObjectsNameLst.filter((obj) => ParseObjectMap(obj.ObjectMap, 1) === lFamilyType);
+        let lFilteredData1 = latestTimestamp.filter((obj) => ParseObjectMap(obj.PointMap, 1) === lFamilyType);
         const groupedByObjectName = Map.groupBy(lFilteredData1, (obj) => ParseObjectMap(obj.PointMap, 2));
         let lNewLst = [];
         groupedByObjectName.forEach(Obj => {
             if (Obj?.length) {
                 switch (lFamilyType) {
+                    
                     case 'area':
                         lNewLst.push({
                             "Name": ParseObjectMap(Obj[0].PointMap, 2),
                             "InsideTemperature": GetPointValueForProperty(Obj, "spaceSetpoint") + " °F",
                             "ActiveSetpoint": GetPointValueForProperty(Obj, "activeSetpoint") + " °F",
-                            "HeatCoolMode": EnumData.HeatCoolMode("Mode." + GetPointValueForProperty(Obj, "heatCoolModeStatus") + ".Text"),
-                            "PresentValue": EnumData.PresentValue("PresentValue." + GetPointValueForProperty(Obj, "occupancyStatus") + ".Text")
+                            "HeatCoolMode": EnumData.HeatCoolMode("Mode." + GetPointValueForProperty1(Obj, "heatCoolModeStatus") + ".Text"),
+                            "PresentValue": EnumData.PresentValue("PresentValue." + GetPointValueForProperty1(Obj, "occupancyStatus") + ".Text")
+                            
                         })
                         break;
+                    
                     case 'space':
                         let lEquipmentType = lFileredData.filter(el => ParseObjectMap(el.ObjectMap, 2) === ParseObjectMap(Obj[0].PointMap, 2));
                         lNewLst.push({
                             "Name": ParseObjectMap(Obj[0].PointMap, 2),
                             "ActiveSetPoint": GetPointValueForProperty(Obj, "activeSetpoint") + " °F",
                             "EquipmentType": lEquipmentType[0] !== undefined ? ParseObjectMap(lEquipmentType[0].ObjectMap, 3) : "",
-                            "HeatCoolMode": EnumData.HeatCoolMode("Mode." + GetPointValueForProperty(Obj, "HeatCoolModeStatus") + ".Text"),
+                            "HeatCoolMode": EnumData.HeatCoolMode("Mode." + GetPointValueForProperty1(Obj, "HeatCoolModeStatus") + ".Text"),
                             "SpaceTemperatureActive": GetPointValueForProperty(Obj, "SpaceTempSetpointActive") + " °F"
                         })
                         break;
@@ -123,6 +119,7 @@ function EquipmentList(BuildingData) {
                 }
             }
         });
+       
         lFileredData.forEach(Obj => {
             let lName = ParseObjectMap(Obj.ObjectMap, 2);
             let IsExists = lNewLst.filter((item) => item.Name === lName);
@@ -191,15 +188,33 @@ function EquipmentList(BuildingData) {
     const GetPointValueForProperty = (record, property) => {
         let Propertylst = record.filter((obj) => ParseObjectMap(obj.PointMap, 3) === property);
         if (Propertylst?.length > 0) {
-            Propertylst.sort((a, b) => new Date(b.Timestamp) - new Date(a.Timestamp));
-            return Propertylst[0]?.Value;
+            const latestTimestampValue = latestTimestamp.find(item => item.PointMap.includes(property))?.Value;
+           
+            if (latestTimestampValue !== undefined && latestTimestampValue !== '') {
+                return parseFloat(latestTimestampValue).toFixed(2);
+            }
         }
-    }
+     
+    };
+   
+    const GetPointValueForProperty1= (record, property) => {
+        let Propertylst = record.filter((obj) => ParseObjectMap(obj.PointMap, 3) === property);
+        if (Propertylst?.length > 0) {
+            const latestTimestampValue = latestTimestamp.find(item => item.PointMap.includes(property))?.Value;
+           
+            if (latestTimestampValue !== undefined && latestTimestampValue !== '') {
+                return latestTimestampValue;
+            }
+        }
+     
+    };
+  
 
     const ParseObjectMap = (str, pos) => {
         const parts = str.split("#");
         return parts[pos];
     };
+
 
     return (
         <div className="content-pane">
