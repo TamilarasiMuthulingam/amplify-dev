@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { generateClient } from "aws-amplify/api";
-import { getAllEquipmentNamesBySerialNumber, getAllEquipmentsBySerialNumber } from "../../graphql/queries";
+import { getAllEquipmentNamesBySerialNumber, AllfamilyEquipment } from "../../graphql/queries";
 import EnumData from "./EnumFile";
 
 const client = generateClient();
@@ -12,36 +12,33 @@ const headerMapping = {
 }
 
 function AllFamilyEquipments(BuildingData) {
-    console.log('sSerialNumber', BuildingData?.location?.SerialNumber); //"E08E60850"
+    console.log('sSerialNumber', BuildingData?.location?.SerialNumber); 
     const [areaData, setareaData] = useState([]);
     const [spaceData, setspaceDataData] = useState([]);
     const [chillerData, setchillerData] = useState([]);
     const [airhandlerData, setairhandlerData] = useState([]);
-
+let latestTimestamp;
     useEffect(() => {
         const fetchEquipmentList = async () => {
             try {
                 let lSerialNumber = BuildingData?.location?.SerialNumber; 
+                let serialNumber=lSerialNumber;
                 const Objresult = await client.graphql({
-                    query: getAllEquipmentNamesBySerialNumber, variables: {
-                        ObjectMap: { beginsWith: lSerialNumber }
-                    }
+                    query: getAllEquipmentNamesBySerialNumber, variables: { serialNumber}
                 });
                 let ObjectsNameLst = Objresult.data.getAllEquipmentNamesBySerialNumber.items;
-                let ObjectsName = ObjectsNameLst.filter((obj) => ParseObjectMap(obj.ObjectMap, 0) === lSerialNumber);
+               
                 console.log('ObjectNamesData lst', ObjectsNameLst);
+          
+                const timestampResult = await client.graphql({ query: AllfamilyEquipment,variables: {  serialNumber } });
+                latestTimestamp = timestampResult.data.getAllRecords4.AllfamilyEquipment.items;
+                console.log("latest",latestTimestamp)
+          
+          
 
-                const result = await client.graphql({
-                    query: getAllEquipmentsBySerialNumber, variables: {
-                        PointMap: { beginsWith: lSerialNumber }
-                    }
-                });
-                var ObjectsDataLst = result.data.getAllEquipmentsBySerialNumber.items;
-                var ObjectsData = ObjectsDataLst.filter((obj) => ParseObjectMap(obj.PointMap, 0) === lSerialNumber);
-                console.log('ObjectsData lst', ObjectsData);
-
-                let lFileredArea = ObjectsName.filter((obj) => ParseObjectMap(obj.ObjectMap, 1) === "area");
-                let lFilteredAreaData = ObjectsData.filter((obj) => ParseObjectMap(obj.PointMap, 1) === "area");
+                
+                let lFileredArea = ObjectsNameLst.filter((obj) => ParseObjectMap(obj.ObjectMap, 1) === "area");
+                let lFilteredAreaData =latestTimestamp.filter((obj) => ParseObjectMap(obj.PointMap, 1) === "area");
                 const groupedByObjectName1 = Map.groupBy(lFilteredAreaData, (obj) => ParseObjectMap(obj.PointMap, 2));
                 let lNewAreaLst = [];
                 groupedByObjectName1.forEach(Obj => {
@@ -50,8 +47,8 @@ function AllFamilyEquipments(BuildingData) {
                             "Name": ParseObjectMap(Obj[0].PointMap, 2),
                             "InsideTemperature": GetPointValueForProperty(Obj, "spaceSetpoint") + " °F",
                             "ActiveSetpoint": GetPointValueForProperty(Obj, "activeSetpoint") + " °F",
-                            "HeatCoolMode": EnumData.HeatCoolMode("Mode." + GetPointValueForProperty(Obj, "heatCoolModeStatus") + ".Text"),
-                            "PresentValue": EnumData.PresentValue("PresentValue." + GetPointValueForProperty(Obj, "occupancyStatus") + ".Text")
+                            "HeatCoolMode": EnumData.HeatCoolMode("Mode." + GetPointValueForProperty1(Obj, "heatCoolModeStatus") + ".Text"),
+                            "PresentValue": EnumData.PresentValue("PresentValue." + GetPointValueForProperty1(Obj, "occupancyStatus") + ".Text")
                         })
                     }
                 });
@@ -70,8 +67,8 @@ function AllFamilyEquipments(BuildingData) {
                 })
                 setareaData(lNewAreaLst);
 
-                let lFileredSpace = ObjectsName.filter((obj) => ParseObjectMap(obj.ObjectMap, 1) === "space");
-                let lFilteredSpaceData = ObjectsData.filter((obj) => ParseObjectMap(obj.PointMap, 1) === "space");
+                let lFileredSpace = ObjectsNameLst.filter((obj) => ParseObjectMap(obj.ObjectMap, 1) === "space");
+                let lFilteredSpaceData = latestTimestamp.filter((obj) => ParseObjectMap(obj.PointMap, 1) === "space");
                 const groupedByObjectName2 = Map.groupBy(lFilteredSpaceData, (obj) => ParseObjectMap(obj.PointMap, 2));
                 let lNewSpace = [];
                 groupedByObjectName2.forEach(Obj => {
@@ -81,7 +78,7 @@ function AllFamilyEquipments(BuildingData) {
                             "Name": ParseObjectMap(Obj[0].PointMap, 2),
                             "ActiveSetPoint": GetPointValueForProperty(Obj, "activeSetpoint") + " °F",
                             "EquipmentType": lEquipmentType[0] !== undefined ? ParseObjectMap(lEquipmentType[0].ObjectMap, 3) : "",
-                            "HeatCoolMode": EnumData.HeatCoolMode("Mode." + GetPointValueForProperty(Obj, "HeatCoolModeStatus") + ".Text"),
+                            "HeatCoolMode": EnumData.HeatCoolMode("Mode." + GetPointValueForProperty1(Obj, "HeatCoolModeStatus") + ".Text"),
                             "SpaceTemperatureActive": GetPointValueForProperty(Obj, "SpaceTempSetpointActive") + " °F"
                         })
                     }
@@ -101,8 +98,8 @@ function AllFamilyEquipments(BuildingData) {
                 })
                 setspaceDataData(lNewSpace);
 
-                let lFileredChiller = ObjectsName.filter((obj) => ParseObjectMap(obj.ObjectMap, 1) === "chiller");
-                let lFilteredChillerData = ObjectsData.filter((obj) => ParseObjectMap(obj.PointMap, 1) === "chiller");
+                let lFileredChiller = ObjectsNameLst.filter((obj) => ParseObjectMap(obj.ObjectMap, 1) === "chiller");
+                let lFilteredChillerData =latestTimestamp.filter((obj) => ParseObjectMap(obj.PointMap, 1) === "chiller");
                 const groupedByObjectName3 = Map.groupBy(lFilteredChillerData, (obj) => ParseObjectMap(obj.PointMap, 2));
                 let lChiller = [];
                 groupedByObjectName3.forEach(Obj => { 
@@ -129,8 +126,8 @@ function AllFamilyEquipments(BuildingData) {
                 })
                 setchillerData(lChiller);
 
-                let lFileredAirHandler = ObjectsName.filter((obj) => ParseObjectMap(obj.ObjectMap, 1) === "airhandler");
-                let lFilteredAirHandlerData = ObjectsData.filter((obj) => ParseObjectMap(obj.PointMap, 1) === "airhandler");
+                let lFileredAirHandler = ObjectsNameLst.filter((obj) => ParseObjectMap(obj.ObjectMap, 1) === "airhandler");
+                let lFilteredAirHandlerData = latestTimestamp.filter((obj) => ParseObjectMap(obj.PointMap, 1) === "airhandler");
                 const groupedByObjectName4 = Map.groupBy(lFilteredAirHandlerData, (obj) => ParseObjectMap(obj.PointMap, 2));
                 let lAirHandler = [];
                 groupedByObjectName4.forEach(Obj => { 
@@ -164,16 +161,36 @@ function AllFamilyEquipments(BuildingData) {
         };
         fetchEquipmentList();
 
-        const GetPointValueForProperty = (record, property) => {
-            let Propertylst = record.filter((obj) => ParseObjectMap(obj.PointMap, 3) === property);
-            if (Propertylst?.length > 0) {
-                Propertylst.sort((a, b) => new Date(b.Timestamp) - new Date(a.Timestamp));
-                return Propertylst[0]?.Value;
-            }
-        }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
+    const GetPointValueForProperty = (record, property) => {
+        let Propertylst = record.filter((obj) => ParseObjectMap(obj.PointMap, 3) === property);
+        if (Propertylst?.length > 0) {
+            const latestTimestampValue = latestTimestamp.find(item => item.PointMap.includes(property))?.Value;
+           
+            if (latestTimestampValue !== undefined && latestTimestampValue !== '') {
+                return parseFloat(latestTimestampValue).toFixed(2);
+            }
+        }
+     
+    };
+    const GetPointValueForProperty1 = (record, property) => {
+        let Propertylst = record.filter((obj) => ParseObjectMap(obj.PointMap, 3) === property);
+        if (Propertylst?.length > 0) {
+            const latestTimestampValue = latestTimestamp.find(item => item.PointMap.includes(property))?.Value;
+           
+            if (latestTimestampValue !== undefined && latestTimestampValue !== '') {
+                return latestTimestampValue;
+            }
+        }
+     
+    };
+   
+    
+    
+    
+   
     const ParseObjectMap = (str, pos) => {
         const parts = str.split("#");
         return parts[pos];
@@ -195,7 +212,7 @@ function AllFamilyEquipments(BuildingData) {
                                         <td>{obj.Name}</td>
                                         <td>{obj.InsideTemperature === 'undefined °F' ? "---" : obj.InsideTemperature}</td>
                                         <td>{obj.ActiveSetpoint === 'undefined °F' ? "---" : obj.ActiveSetpoint}</td>
-                                        <td>{obj.HeatCoolMode}</td>
+                                        <td>{obj.HeatCoolMode === 'undefined °F' ? "---" : obj.HeatCoolMode}</td>
                                         <td>{obj.PresentValue === undefined ? "---" : obj.PresentValue}</td>
                                     </tr>
                                 ))
@@ -217,7 +234,7 @@ function AllFamilyEquipments(BuildingData) {
                                         <td>{obj.Name}</td>
                                         <td>{obj.ActiveSetPoint === 'undefined °F' ? "---" : obj.ActiveSetPoint}</td>
                                         <td>{obj.EquipmentType}</td>
-                                        <td>{obj.HeatCoolMode}</td>
+                                        <td>{obj.HeatCoolMode === 'undefined °F' ? "---" : obj.HeatCoolMode}</td>
                                         <td>{obj.SpaceTemperatureActive === 'undefined °F' ? "---" : obj.SpaceTemperatureActive}</td>
                                     </tr>
                                 ))
