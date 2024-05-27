@@ -44,17 +44,7 @@
       54px 54px 28px -10px rgba(34, 33, 81, 0.15);
 }
 
-.publish-pnl {
-    background-color: #2f3a4c;
-    display: flex;
-    height: 100%;
-    position: fixed;
-    right: 0;
-    top: 50px;
-    transition: right .3s ease;
-    width: 380px;
-    z-index: 1000;
-}
+
 
 .building-header {
     color: white;
@@ -69,4 +59,43 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
+}
+
+.chart{
+    cursor: pointer;
+}
+.Text{
+    font-size:24px;
+    font-weight: bold;
+    margin-right: 80px;
+    margin-top: 90px;
+}
+.publish-pnl {
+    background-color: #2f3a4c;
+    display: flex;
+    height: 100%;
+    position: fixed;
+    right: 0;
+    top: 50px;
+    transition: right .3s ease;
+    width: 380px;
+    z-index: 1000;
+}
+.loading-overlay {
+    position: fixed;
+    top: 50px;
+   
+    width: 380px;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+
+    justify-content: center;
+    z-index: 1001;
+}
+.loading{
+    font-size: 24px;
+    font-weight: bold;
+    position: relative;
+    top:55%;
 }
